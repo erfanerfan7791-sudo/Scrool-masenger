@@ -29,17 +29,62 @@ if(typeof password!=="string"||password.length<10||password.length>72)return s.s
 try{const hash=await bcrypt.hash(password,12),r=await pool.query("INSERT INTO users(username,password_hash) VALUES($1,$2) RETURNING id,username,created_at",[username,hash]);
 const user=r.rows[0];s.cookie(COOKIE,session(user),COOKIE_OPTIONS);s.status(201).json({ok:true,user});}
 catch(e){if(e.code==="23505")return s.status(409).json({error:"این نام کاربری قبلاً ثبت شده است."});console.error("Register:",e.message);s.status(500).json({error:"ثبت‌نام انجام نشد. دوباره تلاش کن."});}});
-app.post("/api/auth/login",limiter,async(q,s)=>{const username=norm(q.body.username),password=q.body.password;
-if(!validUser(username)||typeof password!=="string"||!password.length)return s.status(400).json({error:"نام کاربری یا رمز عبور نامعتبر است."});
-try{const r=await pool.query("SELECT id,username,password_hash,created_at FROM users WHERE username=$1",[username]);
-if(!r.rowCount)return s.status(401).json({error:"نام کاربری یا رمز عبور اشتباه است."});
-const u=r.rows[0];if(!await bcrypt.compare(password,u.password_hash))return s.status(401).json({error:"نام کاربری یا رمز عبور اشتباه است."});
-await pool.query("UPDATE users SET last_login_at=NOW() WHERE id=$1",[u.id]);s.cookie(COOKIE,session(u),COOKIE_OPTIONS);
-s.json({ok:true,user:{id:u.id,username:u.username,created_at:u.created_at}});}
-catch(e){console.error("Login:",e.message);s.status(500).json({error:"ورود انجام نشد. دوباره تلاش کن."});}});
-app.post("/api/auth/logout",(q,s)=>{s.clearCookie(COOKIE,COOKIE_OPTIONS);s.json({ok:true});});
-app.get("/api/auth/me",auth,(q,s)=>s.json({ok:true,user:q.user}));
-app.use("/api",(q,s)=>s.status(404).json({error:"مسیر API پیدا نشد."}));
-app.use((e,q,s,n)=>{console.error("Unhandled:",e.message);s.status(500).json({error:"خطای داخلی سرور."});});
-async function start(){try{const schema=fs.readFileSync(path.join(__dirname,"schema.sql"),"utf8");await pool.query(schema);console.log("Database schema ready");app.listen(PORT,"0.0.0.0",()=>console.log("Scroll Chat on",PORT));}catch(e){console.error("Startup failed:",e);process.exit(1);}}
-process.on("SIGTERM",async()=>{await pool.end();process.exit(0);});start();
+
+app.post("/api/auth/register", limiter, async (q, s) => {
+  const username = norm(q.body.username);
+  const password = q.body.password;
+  const displayName =
+    typeof q.body.display_name === "string" &&
+    q.body.display_name.trim()
+      ? q.body.display_name.trim().slice(0, 50)
+      : username;
+
+  if (!validUser(username)) {
+    return s.status(400).json({
+      error: "نام کاربری باید ۳ تا ۲۴ کاراکتر و فقط شامل حروف انگلیسی کوچک، عدد یا _ باشد."
+    });
+  }
+
+  if (
+    typeof password !== "string" ||
+    password.length < 10 ||
+    password.length > 72
+  ) {
+    return s.status(400).json({
+      error: "رمز عبور باید حداقل ۱۰ و حداکثر ۷۲ کاراکتر باشد."
+    });
+  }
+
+  try {
+    const hash = await bcrypt.hash(password, 12);
+
+    const r = await pool.query(
+      `INSERT INTO users (username, display_name, password_hash)
+       VALUES ($1, $2, $3)
+       RETURNING id, username, display_name, created_at`,
+      [username, displayName, hash]
+    );
+
+    const user = r.rows[0];
+
+    s.cookie(COOKIE, session(user), COOKIE_OPTIONS);
+
+    return s.status(201).json({
+      ok: true,
+      user
+    });
+
+  } catch (e) {
+    if (e.code === "23505") {
+      return s.status(409).json({
+        error: "این نام کاربری قبلاً ثبت شده است."
+      });
+    }
+
+    console.error("Register:", e.message);
+
+    return s.status(500).json({
+      error: "ثبت‌نام انجام نشد. دوباره تلاش کن."
+    });
+  }
+});
