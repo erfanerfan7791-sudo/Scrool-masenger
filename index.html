@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101827"><title>Scroll Chat</title><link rel="stylesheet" href="/style.css"></head>
+<body><main class="shell"><section class="brand"><div class="logo">S</div><div class="brandname">Scroll <span>Chat</span></div><p>گفت‌وگو، ساده‌تر از همیشه.</p><small>نسخه ۱.۰ · پایه حساب کاربری</small></section>
+<section class="content"><div id="authView" class="card"><div class="mobilebrand">◈ Scroll Chat</div><div class="eyebrow">به اسکرول چت خوش اومدی</div><h1 id="title">ورود به حساب</h1><p id="subtitle" class="muted">برای ادامه، اطلاعات حسابت رو وارد کن.</p>
+<div class="tabs"><button id="loginTab" class="active" type="button">ورود</button><button id="registerTab" type="button">ثبت‌نام</button></div>
+<form id="form"><label for="username">نام کاربری</label><input id="username" autocomplete="username" minlength="3" maxlength="24" placeholder="مثلاً erfan_01" required><small>فقط حروف انگلیسی کوچک، عدد و زیرخط</small>
+<label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password" minlength="10" maxlength="72" placeholder="حداقل ۱۰ کاراکتر" required>
+<div id="confirmWrap" class="hidden"><label for="confirm">تکرار رمز عبور</label><input id="confirm" type="password" minlength="10" maxlength="72" placeholder="رمز رو دوباره وارد کن"></div>
+<button id="submit" class="primary" type="submit">ورود</button><div id="message" role="status"></div></form><p class="legal">رمز عبورت رو با هیچ‌کس به اشتراک نذار.</p></div>
+<div id="home" class="card hidden"><div class="successicon">✓</div><div class="eyebrow">ورود موفق</div><h1>خوش اومدی!</h1><p class="muted">سلام <b id="who"></b>، حساب تو آماده‌ست.</p><div class="note"><b>مرحله اول تکمیل شد</b><span>زیرساخت حساب کاربری آماده است. چت خصوصی، گروه‌ها و رمزنگاری سرتاسری در مراحل بعد اضافه می‌شوند.</span></div><button id="logout" class="primary secondary" type="button">خروج از حساب</button></div></section></main><script src="/app.js" defer></script></body></html>
